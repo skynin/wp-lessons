@@ -1,0 +1,191 @@
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
+
+php_value magic_quotes_gpc                0
+php_value allow_url_fopen                 0
+php_value session.auto_start              0
+php_value max_execution_time            120
+php_value zlib.output_compression         0
+
+ServerSignature Off
+
+AddDefaultCharset utf-8
+# Serve the following file types with the media type `charset`
+# parameter set to `UTF-8`.
+#
+# https://httpd.apache.org/docs/current/mod/mod_mime.html#addcharset
+
+<IfModule mod_mime.c>
+    AddCharset utf-8 .atom \
+                     .bbaw \
+                     .css \
+                     .geojson \
+                     .js \
+                     .json \
+                     .jsonld \
+                     .manifest \
+                     .rdf \
+                     .rss \
+                     .topojson \
+                     .vtt \
+                     .webapp \
+                     .webmanifest \
+                     .xloc \
+                     .xml
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Cross-origin images                                                |
+# ----------------------------------------------------------------------
+
+# Send the CORS header for images when browsers request it.
+#
+# https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
+# https://blog.chromium.org/2011/07/using-cross-domain-images-in-webgl-and.html
+<IfModule mod_setenvif.c>
+    <IfModule mod_headers.c>
+        <FilesMatch "\.(bmp|cur|gif|ico|jpe?g|png|svgz?|webp)$">
+            SetEnvIf Origin ":" IS_CORS
+            Header set Access-Control-Allow-Origin "*" env=IS_CORS
+        </FilesMatch>
+    </IfModule>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Cross-origin web fonts                                             |
+# ----------------------------------------------------------------------
+# Allow cross-origin access to web fonts.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(eot|otf|tt[cf]|woff2?)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# Block access to directories without a default document.
+#
+# You should leave the following uncommented, as you shouldn't allow
+# anyone to surf through every directory on your server (which may
+# includes rather private places such as the CMS's directories).
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+# ----------------------------------------------------------------------
+# | Block sensitive WordPress files                                    |
+# ----------------------------------------------------------------------
+<FilesMatch "^(wp-config\.php|readme\.html|license\.txt)">
+    # Apache < 2.3
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+        Satisfy All
+    </IfModule>
+    # Apache ≥ 2.3
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>
+# ----------------------------------------------------------------------
+# | Block outside access to WordPress includes files                   |
+# ----------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteRule ^.git/ - [F,L]
+    RewriteRule ^.hg/ - [F,L]
+
+    RewriteRule ^wp-admin/includes/ - [F,L]
+    RewriteRule !^wp-includes/ - [S=3]
+
+    RewriteRule ^wp-includes/js/tinymce/langs/.+\.php - [F,L]
+    RewriteRule ^wp-includes/theme-compat/ - [F,L]
+
+    RewriteCond %{SCRIPT_FILENAME} !^(.*)wp-includes/ms-files.php
+    RewriteRule ^wp-includes/[^/]+\.php$ - [F,L]
+</IfModule>
+
+# https://www.iana.org/assignments/media-types/media-types.xhtml
+#
+AddType application/x-font-woff2 .woff2
+
+#
+# configure mod_expires
+#
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_expires.html
+#
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    #ExpiresDefault "access plus 1 hours"
+
+    ExpiresByType image/x-icon "access plus 1 months"
+    ExpiresByType image/jpeg "access plus 1 months"
+    ExpiresByType image/jpg "access plus 1 months"
+    ExpiresByType image/png "access plus 1 months"
+    ExpiresByType image/gif "access plus 1 months"
+    ExpiresByType application/x-shockwave-flash "access plus 1 weeks"
+    ExpiresByType text/css "access plus 1 weeks"
+    ExpiresByType application/javascript "access plus 1 weeks"
+    ExpiresByType text/javascript "access plus 1 weeks"
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 months"
+    ExpiresByType application/x-font-ttf "access plus 1 months"
+    ExpiresByType application/x-font-truetype "access plus 1 months"
+    ExpiresByType application/x-font-woff "access plus 1 months"
+    ExpiresByType application/x-font-woff2 "access plus 1 months"
+    ExpiresByType application/x-font-otf "access plus 1 months"
+    ExpiresByType application/x-font-opentype "access plus 1 months"
+    ExpiresByType image/svg+xml "access plus 1 weeks"
+    ExpiresByType text/html "access plus 1 hours"
+    ExpiresByType application/xhtml+xml "access plus 1 hours"
+</IfModule>
+#
+# configure mod_headers
+#
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_headers.html
+#
+<IfModule mod_headers.c>
+    <FilesMatch "\\.(ico|jpe?g|png|gif|swf|woff2?|svg|ttf|eot|otf)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    <FilesMatch "\\.(css|less)$">
+        Header set Cache-Control "max-age=604800, public"
+    </FilesMatch>
+    <FilesMatch "\\.(js)$">
+        Header set Cache-Control "max-age=604800, private"
+    </FilesMatch>
+    <FilesMatch "\\.(x?html?)$">
+        Header set Cache-Control "max-age=3600, private, must-revalidate"
+    </FilesMatch>
+     <filesMatch "\\.(php)$">
+          Header set Cache-Control "max-age=4, private, must-revalidate"
+     </filesMatch>
+
+    #Header unset ETag
+    #Header unset Last-Modified
+    #FileETag INode MTime Size
+    #FileETag MTime Size
+</IfModule>
+<IfModule mod_deflate.c>
+    # Force compression for mangled `Accept-Encoding` request headers
+    # https://developer.yahoo.com/blogs/ydn/pushing-beyond-gzipping-25601.html
+
+    <IfModule mod_setenvif.c>
+        <IfModule mod_headers.c>
+            SetEnvIfNoCase ^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$ ^((gzip|deflate)\s*,?\s*)+|[X~-]{4,13}$ HAVE_Accept-Encoding
+            RequestHeader append Accept-Encoding "gzip,deflate" env=HAVE_Accept-Encoding
+        </IfModule>
+    </IfModule>
+
+    AddOutputFilterByType DEFLATE text/plain text/html text/css
+    AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript application/json
+    AddOutputFilterByType DEFLATE text/xml application/xml application/xhtml+xml application/rss+xml
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon
+    AddOutputFilterByType DEFLATE application/x-font-woff application/x-font-woff2 application/x-font-truetype application/x-font-ttf application/x-font-opentype application/x-font-otf
+</IfModule>
