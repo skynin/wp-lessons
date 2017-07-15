@@ -1,0 +1,14 @@
+*.bak
+*.*~
+/*.xml
+/*.html
+/*.php
+/nbproject/
+/wp-includes/
+/wp-admin/
+/wp-content/debug.log
+/license.txt
+/robots.txt
+
+/wp-content/uploads/
+/tests/
