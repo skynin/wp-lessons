@@ -9,7 +9,7 @@ Author URI: http://skynin.xyz
 */
 
 add_action('login_head', function() {
-    // https://vstarcam.ua/wp-admin?login=vstarcam
+    // https://domain.ua/wp-admin?city=kharkiv
 
 	if (isset($_REQUEST['city']) && $_REQUEST['city'] == 'kharkiv') {
 		// var_dump($_REQUEST['login']);
