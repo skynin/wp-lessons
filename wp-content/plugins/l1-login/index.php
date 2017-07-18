@@ -11,7 +11,7 @@ Author URI: http://skynin.xyz
 add_action('login_head', function() {
     // https://vstarcam.ua/wp-admin?login=vstarcam
 
-	if (isset($_REQUEST['city']) && $_REQUEST['city'] == 'city') {
+	if (isset($_REQUEST['city']) && $_REQUEST['city'] == 'kharkiv') {
 		// var_dump($_REQUEST['login']);
 	}
 	elseif (isset($_REQUEST['redirect_to']) && strpos($_REQUEST['redirect_to'], 'city=kharkiv')) {
